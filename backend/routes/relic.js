@@ -5,9 +5,7 @@ var router = express.Router();
 /* GET users listing. */
 router.get('/', async (req, res, next) => {
   res.setHeader('Content-Type', 'application/json');
-  let stuff = await database();
-  console.log(stuff);
-  res.send(stuff);
+  res.json((await database.getDropsFromRelic("Axi L1")));
 });
 
 module.exports = router;
