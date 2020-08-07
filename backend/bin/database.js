@@ -16,6 +16,7 @@ const insertRelic = async (type, name) => {
     let id = -1;
     try {
         conn = await pool.getConnection();
+        //Do a select to check if relic is already in table first to avoid errors
         const res = await conn.query("INSERT INTO relics (type, name) VALUES (?, ?)", [type, name]);
         id = res.insertId;
     } catch (err) {
