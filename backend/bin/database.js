@@ -68,16 +68,28 @@ const getItem = async (name) => {
     }
 }
 
-const getDropsFromRelic = async (name) => {
-    let nameParts = name.split(' ');
+const getItemIds = async () => {
+    let conn;
+    let row = {};
+    try {
+        conn = await pool.getConnection();
+        row = await conn.query("SELECT id FROM items");
+    } catch (err) {
+        throw err;
+    } finally {
+        if (conn) conn.end();
+        return row;
+    }
+}
+
+const getDropsFromRelic = async (rarity, name) => {
     let conn;
     let row = {};
     try {
         conn = await pool.getConnection();
         row = (await conn.query("SELECT items.name AS item, items.urlname, relics.type, relics.name, drops.rarity "+
                                 "FROM items INNER JOIN drops INNER JOIN relics ON items.id=drops.item_id AND relics.id=drops.relic_id "+
-                                "WHERE relics.type = ? AND relics.name = ?", nameParts));
-        console.log(row);
+                                "WHERE relics.type = ? AND relics.name = ? ORDER BY drops.rarity", [rarity, name]));
     } catch (err) {
         console.error(err);
         throw err;
@@ -93,4 +105,5 @@ module.exports = {
     "insertItem": insertItem,
     "getItem": getItem,
     "getDropsFromRelic": getDropsFromRelic,
+    "getItemIds": getItemIds,
 }
