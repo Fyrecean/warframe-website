@@ -1,1 +1,1 @@
-# Relic look up site
+# Relic Price Lookup
