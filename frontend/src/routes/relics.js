@@ -7,6 +7,8 @@ export default class Relics extends React.Component {
         this.state = {
             relic: "",
             drops: [],
+            intactPrice: 0,
+            radiantPrice: 0
         }
                 
     }
@@ -17,9 +19,26 @@ export default class Relics extends React.Component {
         fetch(url)
         .then(response => response.json())
         .then(data => {
+            let radPrice = 0;
+            let intPrice = 0;
+            for (let i = 0; i < data.length; i++) {
+                switch(data[i].rarity) {
+                    case("Common"):
+                        radPrice += data[i].price * .1667;
+                        intPrice += data[i].price * .2533;
+                    case("Uncommon"):
+                        radPrice += data[i].price * .2;
+                        intPrice += data[i].price * .11;
+                    case("Rare"):
+                        radPrice += data[i].price * .1;
+                        intPrice += data[i].price * .02;
+                }
+            }
             this.setState({
                 relic: relic,
                 drops: data,
+                intactPrice: intPrice,
+                radiantPrice: radPrice,
             });
         })
         .catch(err => {
@@ -29,11 +48,22 @@ export default class Relics extends React.Component {
     }
 
     render() {
+        let hide = this.state.drops.length == 0;
+        let averages = [];
+        if (!hide) {
+            averages = [
+                <li>{"Radiant Average: " + Math.round(this.state.radiantPrice * 10)/10}</li>,
+                <li>{"Intact Average: " + Math.round(this.state.intactPrice * 10)/10}</li>
+            ]
+        }
         return (
             <div>
                 <Search handler={this.handleSearch}/>
-                <h2>{this.state.relic.toUpperCase() + (this.state.drops.length == 0 && this.state.relic.length != 0 ? " - Not Found" : "")}</h2>
+                <h2>{this.state.relic.toUpperCase() + (hide && this.state.relic.length != 0 ? " - Not Found" : "")}</h2>
                 <Table data={this.state.drops}/>
+                <ul>
+                    {averages}
+                </ul>
             </div>
         )
     }
@@ -98,7 +128,7 @@ function TableRow(props) {
         <tr>
             <td className="name">{props.row.item}</td>
             <td className="rarity">{props.row.rarity}</td>
-            <td className="price">{props.row.price}</td>
+            <td className="price">{props.row.price == 0 ? "N/A" : props.row.price}</td>
         </tr>
     );
 }
