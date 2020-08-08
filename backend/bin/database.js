@@ -16,11 +16,10 @@ const insertRelic = async (type, name) => {
     let id = -1;
     try {
         conn = await pool.getConnection();
-        //Do a select to check if relic is already in table first to avoid errors
         const res = await conn.query("INSERT INTO relics (type, name) VALUES (?, ?)", [type, name]);
         id = res.insertId;
     } catch (err) {
-        //Pretty sure ignoring error isn't best practice but its working fantastically for me right now
+        throw err;
     } finally {
         if (conn) conn.end();
         return id;
@@ -88,7 +87,7 @@ const getDropsFromRelic = async (rarity, name) => {
     let row = {};
     try {
         conn = await pool.getConnection();
-        row = (await conn.query("SELECT items.name AS item, items.urlname, relics.type, relics.name, drops.rarity "+
+        row = (await conn.query("SELECT items.name AS item, items.urlname as url, items.price as price, relics.type, relics.name, drops.rarity "+
                                 "FROM items INNER JOIN drops INNER JOIN relics ON items.id=drops.item_id AND relics.id=drops.relic_id "+
                                 "WHERE relics.type = ? AND relics.name = ? ORDER BY drops.rarity", [rarity, name]));
     } catch (err) {
@@ -100,6 +99,33 @@ const getDropsFromRelic = async (rarity, name) => {
     }
 }
 
+const getItemById = async (id) => {
+    let conn;
+    let row = {};
+    try {
+        conn = await pool.getConnection();
+        row = await conn.query("SELECT * FROM items WHERE id = ?", [id]);
+    } catch (err) {
+        console.error(err);
+        throw err;
+    } finally {
+        if (conn) conn.end();
+        return row[0];
+    }
+}
+
+const updatePrice = async (id, price) => {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        await conn.query("UPDATE items SET price= ? WHERE id = ?", [price, id]);
+    } catch (err) {
+        console.log(err);
+    } finally {
+        if (conn) conn.end();
+    }
+}
+
 module.exports = {
     "insertRelic": insertRelic,
     "insertDrop": insertDrop,
@@ -107,4 +133,6 @@ module.exports = {
     "getItem": getItem,
     "getDropsFromRelic": getDropsFromRelic,
     "getItemIds": getItemIds,
+    "getItemById": getItemById,
+    "updatePrice": updatePrice,
 }

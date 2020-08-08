@@ -48,3 +48,6 @@ const update = async function() {
 }
 
 module.exports = update;
+
+await update();
+process.exit();

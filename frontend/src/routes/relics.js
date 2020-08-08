@@ -32,7 +32,7 @@ export default class Relics extends React.Component {
         return (
             <div>
                 <Search handler={this.handleSearch}/>
-                <h2>{this.state.relic.toUpperCase()}</h2>
+                <h2>{this.state.relic.toUpperCase() + (this.state.drops.length == 0 && this.state.relic.length != 0 ? " - Not Found" : "")}</h2>
                 <Table data={this.state.drops}/>
             </div>
         )
