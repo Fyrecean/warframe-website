@@ -2,6 +2,8 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var logger = require('morgan');
+var compression = require('compression');
+var helmet = require('helmet');
 
 var indexRouter = require('./routes/index');
 var relicRouter = require('./routes/relic');
@@ -9,7 +11,9 @@ var relicRouter = require('./routes/relic');
 var app = express();
 
 // view engine setup
-app.use(logger('dev'));
+//app.use(logger('dev'));
+app.use(compression());
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
