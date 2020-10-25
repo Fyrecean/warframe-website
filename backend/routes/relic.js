@@ -5,7 +5,7 @@ var router = express.Router();
 /* GET users listing. */
 router.get('/:relicType/:relicName', async (req, res, next) => {
   res.setHeader('Content-Type', 'application/json');
-  res.header("Access-Control-Allow-Origin", "http://192.168.1.142:3000");
+  res.header("Access-Control-Allow-Origin", "*");
   res.json((await database.getDropsFromRelic(req.params.relicType, req.params.relicName)));
 });
 

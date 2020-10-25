@@ -4,6 +4,7 @@ const database = require('./database');
  * https://github.com/WFCD/warframe-drop-data#api-endpoints
  * Updates database from drops api
  */
+var lastUpdate = 0;
 const url = 'https://drops.warframestat.us/data/relics.json';
 const update = async function() {
     fetch(url)
@@ -33,8 +34,8 @@ const update = async function() {
                 })
             };
             let relicID = await database.insertRelic(info.type, info.name);
-            console.log(relicID);
             if (relicID >= 0) {
+                console.log("Adding relic: " + relicID);
                 for (let j = 0; j < info.drops.length; j++) {
                     let itemID = await database.insertItem(info.drops[j][0]);
                     if (itemID < 0) {
@@ -47,7 +48,12 @@ const update = async function() {
     });
 }
 
-module.exports = update;
-
-await update();
-process.exit();
+module.exports = async function run() {
+    let res = await fetch("https://drops.warframestat.us/data/info.json");
+    res = await res.json();
+    if (res["timestamp"] != lastUpdate) {
+        lastUpdate = res["timestamp"];
+        await update();
+    }
+    setTimeout(run, 86400000);
+};

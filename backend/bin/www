@@ -8,6 +8,7 @@ var app = require('../app');
 var debug = require('debug')('warframe-website:server');
 var http = require('http');
 require('./price-scraper')();
+require('./drop-scraper')();
 /**
  * Get port from environment and store in Express.
  */

@@ -15,7 +15,7 @@ export default class Relics extends React.Component {
 
     handleSearch = relic => {
         let relicParts = relic.split(' ');
-        let url = "http://192.168.1.142:3001/relic/" + relicParts[0] + "/" + relicParts[1];
+        let url = "http://fyrecean.com:81/relic/" + relicParts[0] + "/" + relicParts[1];
         fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -26,12 +26,16 @@ export default class Relics extends React.Component {
                     case("Common"):
                         radPrice += data[i].price * .1667;
                         intPrice += data[i].price * .2533;
+                        break;
                     case("Uncommon"):
                         radPrice += data[i].price * .2;
                         intPrice += data[i].price * .11;
+                        break;
                     case("Rare"):
                         radPrice += data[i].price * .1;
                         intPrice += data[i].price * .02;
+                        break;
+                    default:
                 }
             }
             this.setState({
@@ -48,7 +52,7 @@ export default class Relics extends React.Component {
     }
 
     render() {
-        let hide = this.state.drops.length == 0;
+        let hide = this.state.drops.length === 0;
         let averages = [];
         if (!hide) {
             averages = [
@@ -59,7 +63,7 @@ export default class Relics extends React.Component {
         return (
             <div>
                 <Search handler={this.handleSearch}/>
-                <h2>{this.state.relic.toUpperCase() + (hide && this.state.relic.length != 0 ? " - Not Found" : "")}</h2>
+                <h2>{this.state.relic.toUpperCase() + (hide && this.state.relic.length !== 0 ? " - Not Found" : "")}</h2>
                 <Table data={this.state.drops}/>
                 <ul>
                     {averages}
@@ -128,7 +132,7 @@ function TableRow(props) {
         <tr>
             <td className="name">{props.row.item}</td>
             <td className="rarity">{props.row.rarity}</td>
-            <td className="price">{props.row.price == 0 ? "N/A" : props.row.price}</td>
+            <td className="price">{props.row.price === 0 ? "N/A" : props.row.price}</td>
         </tr>
     );
 }

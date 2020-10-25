@@ -18,11 +18,14 @@ const getIds = async function () {
 const nameToMarketFormat = (name) => {
   let nameSplit = name.split('-');
   if (nameSplit.length == 4) {
-    if (nameSplit[2] == "neuroptics" || nameSplit[2] == "chassis" || nameSplit[2] == "systems") {
+    if (nameSplit[2] == "neuroptics" || nameSplit[2] == "chassis" || nameSplit[2] == "systems" || nameSplit[2] == "harness" || nameSplit[2] == "wings") {
       nameSplit.pop();
     }
   }
   let url = nameSplit[0];
+  if (nameSplit[1] == "&") { //Fix for silva & aegis
+    nameSplit[1] = "and";
+  }
   for (let i = 1; i < nameSplit.length; i++) {
     url += "_" + nameSplit[i];
   }
@@ -32,30 +35,33 @@ const nameToMarketFormat = (name) => {
 const updateNextPrice = async function() {
   if (ids.length > 0) {
     let item = await database.getItemById(ids[index]);
-    let url = 'https://api.warframe.market/v1/items/' + nameToMarketFormat(item.urlname) + '/statistics';
-    await fetch(url)
-    .then(res => res.json())
-    .then(async (json) => {
-      let data = json.payload.statistics_closed["48hours"]; 
-      await database.updatePrice(ids[index], data[data.length - 1].moving_avg)
-    })
-    .catch(err => {
-      console.error(err);
-    })
-    .finally(()=> {
-      index++;
-      if (index >= ids.length) {
-        index = 0;
-      }
-    });
-    
+    if (item.urlname != 'forma-blueprint') {
+      let url = 'https://api.warframe.market/v1/items/' + nameToMarketFormat(item.urlname) + '/statistics';
+      await fetch(url)
+      .then(res => res.json())
+      .then(async (json) => {
+        let data = json.payload.statistics_closed["48hours"]; 
+        let price = data[data.length - 1].moving_avg;
+        if (price == undefined) {
+          price = data[data.length - 1].avg_price;
+        }
+        await database.updatePrice(ids[index], price)
+      })
+      .catch(err => {
+        console.error(err);
+        console.log("Problem id: " + ids[index])
+      });
+    }
+    index++;
+    if (index >= ids.length) {
+      getIds();
+      index = 0;
+    }
   }
 }
 
 getIds();
-
 module.exports = async function run() {
     await updateNextPrice();
     setTimeout(run, 3000)
-  
   };

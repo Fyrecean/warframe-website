@@ -16,8 +16,11 @@ const insertRelic = async (type, name) => {
     let id = -1;
     try {
         conn = await pool.getConnection();
-        const res = await conn.query("INSERT INTO relics (type, name) VALUES (?, ?)", [type, name]);
-        id = res.insertId;
+        const check = await conn.query("SELECT id FROM relics WHERE type = ? AND name = ?", [type, name]);
+        if (check[0] == undefined) {
+            const res = await conn.query("INSERT INTO relics (type, name) VALUES (?, ?)", [type, name]);
+            id = res.insertId;
+        }
     } catch (err) {
         throw err;
     } finally {
@@ -118,7 +121,7 @@ const updatePrice = async (id, price) => {
     let conn;
     try {
         conn = await pool.getConnection();
-        await conn.query("UPDATE items SET price= ? WHERE id = ?", [price, id]);
+        await conn.query("UPDATE items SET price= ?, updated=NOW() WHERE id = ?", [price, id]);
     } catch (err) {
         console.log(err);
     } finally {
