@@ -1,6 +1,6 @@
 # Waframe Relic Price Lookup
 A website for looking up the items dropped by void relics along with the live prices of those items, updated from https://warframe.market/.
-I created this tool so me and my friends could easily check which relics were worth using my void traces on while playing Warframe. 
+I created this tool so me and my friends could easily check which relics were worth using void traces on while playing Warframe. 
 
 The live version can be found at: http://fyrecean.com. 
 
